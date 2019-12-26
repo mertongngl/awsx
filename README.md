@@ -1,4 +1,4 @@
-# `awsx` for switching awscli creds
+# `awsx` for switching awscli creds  `BETA`
 
 
 **`awsx`** helps you switch between aws credentials:

@@ -11,12 +11,19 @@
 
 ## Installation
 
-### `Linux` & `macOS`
+### `Linux`
 
 Command:
 
     sudo cp awsx /bin/awsx
     sudo chmod +x /bin/awsx
+
+### `macOS`
+
+Command:
+
+    sudo cp awsx /usr/local/bin/awsx
+    sudo chmod +x /usr/local/bin/awsx
 
 ## Notes
 

@@ -41,7 +41,7 @@ Command:
 
 - `--add-prompt`/`-p` : Creating credentials files from prompt.
 
-    ![awsx demo GIF](img/awsx_add_prompt.gif)
+    ![awsx demo GIF](img/awsx_prompt.gif)
 
 - `--remove`/`-r` : Removing your credentials from .aws.configs/ directory
 

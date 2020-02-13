@@ -85,6 +85,24 @@ def remove_selected_item(selected_creds):
         return "Cannot remove '{}' credentials".format(selected_creds)
     return "Removed '{}' credentials successfully".format(selected_creds)
 
+def store_item(creds_name):
+    stderr_1 = os.system(
+        "mkdir -p {}/{}/".format(
+            base_dir,
+            creds_name
+            )
+        )
+    stderr_2 = os.system(
+        "cp -r {}/.aws/* {}/{}/".format(
+            home_dir,
+            base_dir,
+            creds_name
+            )
+        )
+    if(stderr_1 != 0 or stderr_2 !=0):
+        return "Cannot store '{}' credentials".format(creds_name)
+    return "Stored '{}' credentials succesfully".format(creds_name)
+
 def prompt_store_item(creds_name):
     acc_key = raw_input("Please enter your access key:")
     acc_secret = raw_input("Please enter your secret key:")

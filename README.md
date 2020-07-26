@@ -13,14 +13,26 @@
 
 ### `Linux`
 
-Command:
+#### `Info: ` If you are using python3 on your PC, please use the `awsx-py3` script file.
+
+Python3.x:
+
+    sudo cp awsx-py3 /bin/awsx
+    sudo chmod +x /bin/awsx    
+
+Python2.x:
 
     sudo cp awsx /bin/awsx
     sudo chmod +x /bin/awsx
 
 ### `macOS`
 
-Command:
+Python3.x:
+
+    sudo cp awsx-py3 /usr/local/bin/awsx
+    sudo chmod +x /usr/local/bin/awsx
+
+Python2.x:
 
     sudo cp awsx /usr/local/bin/awsx
     sudo chmod +x /usr/local/bin/awsx

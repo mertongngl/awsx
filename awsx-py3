@@ -1,0 +1,190 @@
+#!/usr/bin/python3
+import argparse
+import os
+
+## this is for parsing args and parameters
+parser = argparse.ArgumentParser()
+
+home_dir = os.getenv('HOME')
+## this dir is for credentials
+base_dir = home_dir + "/.aws.configs"
+
+credentials_template = """[default]
+aws_access_key_id = {} 
+aws_secret_access_key = {}
+"""
+
+config_template = """[default]
+region = {}
+"""
+
+def create_basedir():
+    stderr_mkdir = os.system(
+        "mkdir -p {}".format(base_dir)
+        )
+    stderr_touch = os.system(
+        "touch {}/.curr_creds".format(base_dir)
+        )
+    if(stderr_mkdir != 0 or stderr_touch != 0):
+        return "Base directory could not create"
+    return "Base directory created"
+
+def change_creds(selected_creds):
+    if not (os.path.exists("{}/{}".format(base_dir, selected_creds))):
+        return "There is no '{}' credentials".format(selected_creds)
+    stderr_1 = os.system(
+        "cp {}/{}/config {}/.aws/".format(
+            base_dir,
+            selected_creds,
+            home_dir
+            )
+        )
+    stderr_2 = os.system(
+        "cp {}/{}/credentials {}/.aws/".format(
+            base_dir,
+            selected_creds,
+            home_dir
+            )
+        )
+    if(stderr_1 != 0 or stderr_2 != 0):
+        return "Cannot change credentials"
+    set_current_item(selected_creds)
+    return "Credentials changed to '{}'".format(selected_creds)
+
+def get_creds():
+    creds_list = list()
+    curr_item = get_current_item()
+    list_dirs = os.listdir(base_dir)
+    list_dirs.remove(".curr_creds")
+    for i in list_dirs:
+        if i == curr_item:
+            creds_list.append("* {}".format(i))
+            continue
+        creds_list.append("  {}".format(i))
+    return "\n".join(creds_list)
+
+def set_current_item(curr_item):
+    with open("{}/.curr_creds".format(base_dir), 'w') as f:
+        f.write(curr_item)
+
+def get_current_item():
+    with open("{}/.curr_creds".format(base_dir), 'r') as f:
+        curr_item = f.readline().replace('\n','')
+    return curr_item
+
+def remove_selected_item(selected_creds):
+    if not (os.path.exists("{}/{}".format(base_dir, selected_creds))):
+        return "There is no '{}' credentials".format(selected_creds)
+    stderr = os.system(
+        "rm -rf {}/{}/".format(
+            base_dir,
+            selected_creds
+            )
+        )
+    if(stderr != 0):
+        return "Cannot remove '{}' credentials".format(selected_creds)
+    return "Removed '{}' credentials successfully".format(selected_creds)
+
+def store_item(creds_name):
+    stderr_1 = os.system(
+        "mkdir -p {}/{}/".format(
+            base_dir,
+            creds_name
+            )
+        )
+    stderr_2 = os.system(
+        "cp -r {}/.aws/* {}/{}/".format(
+            home_dir,
+            base_dir,
+            creds_name
+            )
+        )
+    if(stderr_1 != 0 or stderr_2 !=0):
+        return "Cannot store '{}' credentials".format(creds_name)
+    return "Stored '{}' credentials succesfully".format(creds_name)
+
+def prompt_store_item(creds_name):
+    acc_key = str(input("Please enter your access key:"))
+    acc_secret = str(input("Please enter your secret key:"))
+    region = str(input("Please enter your region:"))
+    if(acc_key != "" and acc_secret != "" and region != ""):
+        new_creds = credentials_template.format(
+            acc_key,
+            acc_secret
+        )
+        new_config = config_template.format(
+            region
+        )
+        if not (os.path.exists("{}/{}/".format(base_dir,creds_name))):
+            stderr_1 = os.system(
+                "mkdir -p {}/{}/".format(
+                    base_dir,
+                    creds_name
+                )
+            )
+        with open("{}/{}/credentials".format(base_dir,creds_name), 'w') as credential_file:
+            credential_file.write(new_creds)
+        
+        with open("{}/{}/config".format(base_dir,creds_name), 'w') as config_file:
+            config_file.write(new_config)
+
+        if(stderr_1 != 0):
+            return "Cannot store '{}' credentials".format(creds_name)
+        return "Stored '{}' credentials succesfully".format(creds_name)
+    return "Cannot get values from prompt"
+
+def get_args():
+    parser.add_argument(
+        "-a",
+        "--add",
+        required=False,
+        help = "add your credentials to awsx"
+    )
+    parser.add_argument(
+        "-r",
+        "--remove",
+        required=False,
+        help = "remove your credentials from awsx"
+    )
+    parser.add_argument(
+        "-l",
+        "--list",
+        required=False,
+        action="store_true",
+        help = "list your credentials from awsx"
+    )
+    parser.add_argument(
+        "change",
+        nargs="?",
+        help = "Example: awsx foo , awsx bar"
+    )
+    parser.add_argument(
+        "-p",
+        "--add-prompt",
+        required = False,
+        help = "you can create creds from prompt"
+    )
+    return parser.parse_args()
+
+def parse_options(arguments):
+    if(arguments.list):
+        return get_creds()
+    elif(arguments.remove):
+        return remove_selected_item(arguments.remove)
+    elif(arguments.add):
+        return store_item(arguments.add)
+    elif(arguments.add_prompt):
+        return prompt_store_item(arguments.add_prompt)
+    elif(arguments.change):
+        return change_creds(arguments.change)
+    else:
+        return get_creds()
+
+if __name__ == "__main__":
+    if not (os.path.exists(base_dir)):
+        create_basedir()
+    parsed_option = parse_options(get_args())
+    if len(parsed_option) == 0:
+        parser.print_help()
+    else:
+        print(parsed_option)

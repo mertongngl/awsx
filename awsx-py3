@@ -2,6 +2,16 @@
 import argparse
 import os
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 ## this is for parsing args and parameters
 parser = argparse.ArgumentParser()
 
@@ -58,7 +68,7 @@ def get_creds():
     list_dirs.remove(".curr_creds")
     for i in list_dirs:
         if i == curr_item:
-            creds_list.append("* {}".format(i))
+            creds_list.append(bcolors.HEADER + bcolors.BOLD + bcolors.WARNING + "* {}".format(i) + bcolors.ENDC)
             continue
         creds_list.append("  {}".format(i))
     return "\n".join(creds_list)

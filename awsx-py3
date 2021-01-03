@@ -114,6 +114,7 @@ def store_item(creds_name):
     return "Stored '{}' credentials succesfully".format(creds_name)
 
 def prompt_store_item(creds_name):
+    stderr_1 = 0
     acc_key = str(input("Please enter your access key:"))
     acc_secret = str(input("Please enter your secret key:"))
     region = str(input("Please enter your region:"))

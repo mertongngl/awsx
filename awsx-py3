@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import argparse
 import os
+import subprocess
+import json
 
 class bcolors:
     HEADER = '\033[95m'
@@ -26,6 +28,14 @@ aws_secret_access_key = {}
 
 config_template = """[default]
 region = {}
+"""
+
+mfa_arn_template = "{}"
+
+credentials_template_with_mfa = """[default]
+aws_access_key_id = {} 
+aws_secret_access_key = {}
+aws_session_token = {}
 """
 
 def create_basedir():
@@ -82,6 +92,13 @@ def get_current_item():
         curr_item = f.readline().replace('\n','')
     return curr_item
 
+def get_current_mfa_arn(creds_name):
+    if not (os.path.exists("{}/{}/.mfa_arn".format(base_dir,creds_name))):
+        return None
+    with open("{}/{}/.mfa_arn".format(base_dir,creds_name), 'r') as f:
+        curr_mfa_arn = f.readline().replace('\n','')
+    return curr_mfa_arn
+
 def remove_selected_item(selected_creds):
     if not (os.path.exists("{}/{}".format(base_dir, selected_creds))):
         return "There is no '{}' credentials".format(selected_creds)
@@ -118,6 +135,7 @@ def prompt_store_item(creds_name):
     acc_key = str(input("Please enter your access key:"))
     acc_secret = str(input("Please enter your secret key:"))
     region = str(input("Please enter your region:"))
+    mfa_arn = str(input("Please enter your MFA arn [optional]:"))
     if(acc_key != "" and acc_secret != "" and region != ""):
         new_creds = credentials_template.format(
             acc_key,
@@ -139,10 +157,48 @@ def prompt_store_item(creds_name):
         with open("{}/{}/config".format(base_dir,creds_name), 'w') as config_file:
             config_file.write(new_config)
 
+        if(mfa_arn != ""):
+            new_mfa_arn = mfa_arn_template.format(
+                mfa_arn
+            )
+            with open("{}/{}/.mfa_arn".format(base_dir,creds_name), 'w') as arn_file:
+                arn_file.write(new_mfa_arn)
+
         if(stderr_1 != 0):
             return "Cannot store '{}' credentials".format(creds_name)
         return "Stored '{}' credentials succesfully".format(creds_name)
     return "Cannot get values from prompt"
+
+def update_mfa(mfa_code):
+    stderr_1 = 0
+    creds_name = get_current_item()
+    mfa_arn = get_current_mfa_arn(creds_name)
+    if mfa_arn is None:
+        return "There is no MFA ARN"
+    change_creds(creds_name)
+    try:
+        stdout_1 = subprocess.check_output(
+            "aws sts get-session-token --serial-number {} --token-code {}".format(
+                mfa_arn,
+                mfa_code
+            ),
+            shell=True
+        )
+        session = json.loads(stdout_1)["Credentials"]
+        new_cred = credentials_template_with_mfa.format(
+            session["AccessKeyId"],
+            session["SecretAccessKey"],
+            session["SessionToken"]
+        )
+        with open("{}/.aws/credentials".format(home_dir), 'w') as credential_file:
+            credential_file.write(new_cred)
+        return "{}{}{} session is updated with MFA code".format(
+            bcolors.OKGREEN,
+            creds_name,
+            bcolors.ENDC
+        )
+    except subprocess.CalledProcessError as e:
+        return "\n"
 
 def get_args():
     parser.add_argument(
@@ -175,6 +231,12 @@ def get_args():
         required = False,
         help = "you can create creds from prompt"
     )
+    parser.add_argument(
+        "-mfa",
+        "--update-mfa",
+        required = False,
+        help = "update your mfa session"
+    )
     return parser.parse_args()
 
 def parse_options(arguments):
@@ -188,6 +250,8 @@ def parse_options(arguments):
         return prompt_store_item(arguments.add_prompt)
     elif(arguments.change):
         return change_creds(arguments.change)
+    elif(arguments.update_mfa):
+        return update_mfa(arguments.update_mfa)
     else:
         return get_creds()
 

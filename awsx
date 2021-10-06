@@ -183,6 +183,7 @@ def update_mfa(mfa_code):
     mfa_arn = get_current_mfa_arn(creds_name)
     if mfa_arn is None:
         return "There is no MFA ARN"
+    change_creds(creds_name)
     try:
         stdout_1 = subprocess.check_output(
             "aws sts get-session-token --serial-number {} --token-code {}".format(

@@ -264,6 +264,8 @@ def parse_options(arguments):
         return get_creds()
 
 if __name__ == "__main__":
+    if not (os.path.exists("{}/.aws".format(home_dir))):
+        os.system("mkdir -p {}/.aws".format(home_dir))
     if not (os.path.exists(base_dir)):
         create_basedir()
     parsed_option = parse_options(get_args())

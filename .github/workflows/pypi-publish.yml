@@ -2,8 +2,8 @@ name: PyPI Publish
 
 on:
   push:
-    branches:
-      - feature/package-management
+    tags:
+      - 'v*'
 
 jobs:
   build:

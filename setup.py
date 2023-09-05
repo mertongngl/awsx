@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='awsx',
+    name='awsx-cli',
     version='1.0',
     author='Mert Önengil, Mehmet Eraslan',
     description='AWS credential management tool',

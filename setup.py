@@ -1,11 +1,17 @@
 from setuptools import setup
 
+
+with open("README.md", "r") as readme_file:
+    long_description = readme_file.read()
+
+
 setup(
     name='awsx-cli',
-    version='1.0',
-    author='Mert Önengil, Mehmet Eraslan',
+    version='1.0.1',
+    author='Mert Öngengil, Mehmet Eraslan',
     description='AWS credential management tool',
-    long_description='A Python script for managing AWS credentials.',
+    long_description=long_description,
+    long_description_content_type="text/markdown", 
     url='https://github.com/mertongngl/awsx',
     py_modules=['awsx'],
     install_requires=[

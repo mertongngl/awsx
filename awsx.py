@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import argparse
 import os
 import subprocess
@@ -88,17 +88,9 @@ def set_current_item(curr_item):
         f.write(curr_item)
 
 def get_current_item():
-    try:
-        with open("{}/.curr_creds".format(base_dir), 'r') as f:
-            curr_item = f.readline().replace('\n','')
-        return curr_item
-    except IOError as e:
-        print("{}Error: Please create first credentials!\n{}".format(
-            bcolors.FAIL,
-            bcolors.ENDC
-        ))
-        parser.print_help()
-        exit(55)
+    with open("{}/.curr_creds".format(base_dir), 'r') as f:
+        curr_item = f.readline().replace('\n','')
+    return curr_item
 
 def get_current_mfa_arn(creds_name):
     if not (os.path.exists("{}/{}/.mfa_arn".format(base_dir,creds_name))):
@@ -140,10 +132,10 @@ def store_item(creds_name):
 
 def prompt_store_item(creds_name):
     stderr_1 = 0
-    acc_key = raw_input("Please enter your access key:")
-    acc_secret = raw_input("Please enter your secret key:")
-    region = raw_input("Please enter your region:")
-    mfa_arn = raw_input("Please enter your MFA arn [optional]:")
+    acc_key = str(input("Please enter your access key:"))
+    acc_secret = str(input("Please enter your secret key:"))
+    region = str(input("Please enter your region:"))
+    mfa_arn = str(input("Please enter your MFA arn [optional]:"))
     if(acc_key != "" and acc_secret != "" and region != ""):
         new_creds = credentials_template.format(
             acc_key,
@@ -262,8 +254,7 @@ def parse_options(arguments):
         return update_mfa(arguments.update_mfa)
     else:
         return get_creds()
-
-if __name__ == "__main__":
+def main():
     if not (os.path.exists("{}/.aws".format(home_dir))):
         os.system("mkdir -p {}/.aws".format(home_dir))
     if not (os.path.exists(base_dir)):
@@ -273,3 +264,6 @@ if __name__ == "__main__":
         parser.print_help()
     else:
         print(parsed_option)
+
+if __name__ == "__main__":
+    main()

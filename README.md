@@ -79,6 +79,14 @@ Once awsx-cli is installed, you can start using it to manage your AWS credential
     ❯ awsx -a aws04
     Stored 'aws04' credentials succesfully
     ```
+
+* To both switch to a different set of credentials and update the MFA session:
+
+    ```zsh
+    ❯ awsx aws02 -mfa your-mfa-code
+    aws02 session is updated with MFA code
+    ```
+
 * To update an MFA session:
 
     ```zsh

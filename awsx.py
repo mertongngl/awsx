@@ -249,7 +249,11 @@ def parse_options(arguments):
     elif(arguments.add_prompt):
         return prompt_store_item(arguments.add_prompt)
     elif(arguments.change):
-        return change_creds(arguments.change)
+        if(arguments.update_mfa):
+            change_creds(arguments.change)
+            return update_mfa(arguments.update_mfa)
+        else:
+            return change_creds(arguments.change)
     elif(arguments.update_mfa):
         return update_mfa(arguments.update_mfa)
     else:

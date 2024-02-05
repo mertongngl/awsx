@@ -7,8 +7,8 @@ with open("README.md", "r") as readme_file:
 
 setup(
     name='awsx-cli',
-    version='1.0.4',
-    author='Mert Öngengil, Mehmet Eraslan',
+    version='1.1.0',
+    author='Mert Öngengil, Mehmet Eraslan, Engin Can Höke',
     description='AWS credential management tool',
     long_description=long_description,
     long_description_content_type="text/markdown", 

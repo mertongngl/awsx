@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 import json
+import re
 
 class bcolors:
     HEADER = '\033[95m'
@@ -199,6 +200,47 @@ def update_mfa(mfa_code):
         )
     except subprocess.CalledProcessError as e:
         return "\n"
+    
+def rotate_credential(creds_name):
+    stderr_1 = 0
+    try:
+        if not (os.path.exists("{}/{}/".format(base_dir,creds_name))):
+            return "Cannot find '{}' credentials".format(creds_name)
+        
+        username = subprocess.check_output(
+            "aws iam get-user --query 'User.UserName'",
+            shell=True,
+            text=True
+        ).strip()
+
+        new_key = subprocess.check_output(
+            "aws iam create-access-key --user-name {}".format(username),
+            shell=True,
+            text=True
+        )
+        acc_key = json.loads(new_key)["AccessKey"]["AccessKeyId"]
+        acc_secret = json.loads(new_key)["AccessKey"]["SecretAccessKey"]
+        
+        with open("{}/{}/credentials".format(base_dir, creds_name), 'r') as credential_file:
+            credentials_data = credential_file.read()
+            old_key_id = re.search(r'aws_access_key_id = (.+)', credentials_data).group(1)
+
+        new_creds = credentials_template.format(
+            acc_key,
+            acc_secret
+        )
+        with open("{}/{}/credentials".format(base_dir,creds_name), 'w') as credential_file:
+            credential_file.write(new_creds)
+
+        subprocess.run(
+            "aws iam delete-access-key --access-key-id {} --user-name {}".format(old_key_id, username),
+            shell=True,
+            check=True
+        )
+        return "Credentials rotated successfully"
+
+    except subprocess.CalledProcessError as e:
+        return "Error during credentials rotation: {}".format(e)
 
 def get_args():
     parser.add_argument(
@@ -237,6 +279,12 @@ def get_args():
         required = False,
         help = "update your mfa session"
     )
+    parser.add_argument(
+        "-c",
+        "--rotate-credential",
+        required = False,
+        help = "rotate your credentials (create new and remove previous) Example: awsx -c foo -mfa 123456"
+    )
     return parser.parse_args()
 
 def parse_options(arguments):
@@ -254,6 +302,11 @@ def parse_options(arguments):
             return update_mfa(arguments.update_mfa)
         else:
             return change_creds(arguments.change)
+    elif(arguments.rotate_credential):
+        change_creds(arguments.rotate_credential)
+        if(arguments.update_mfa):
+            update_mfa(arguments.update_mfa)
+        return rotate_credential(arguments.rotate_credential)
     elif(arguments.update_mfa):
         return update_mfa(arguments.update_mfa)
     else:

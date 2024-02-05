@@ -99,6 +99,12 @@ Once awsx-cli is installed, you can start using it to manage your AWS credential
     ❯ awsx -r aws03
     Removed 'aws03' credentials successfully
     ```
+* To rotate credentials:
+ 
+     ```zsh
+    ❯ awsx -c foo -mfa 123456
+    Credentials rotated successfully
+    ```
 * To get help:
 
      ```zsh
@@ -119,6 +125,8 @@ Once awsx-cli is installed, you can start using it to manage your AWS credential
                             you can create creds from prompt
     -mfa UPDATE_MFA, --update-mfa UPDATE_MFA
                             update your mfa session
+    -c ROTATE_CREDENTIAL, --rotate-credential ROTATE_CREDENTIAL
+                          rotate your credentials (create new and remove previous) Example: awsx -c foo -mfa 123456
 
     ```
 

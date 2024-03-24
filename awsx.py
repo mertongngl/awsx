@@ -75,7 +75,7 @@ def change_creds(selected_creds):
 def get_creds():
     creds_list = list()
     curr_item = get_current_item()
-    list_dirs = os.listdir(base_dir)
+    list_dirs = sorted(os.listdir(base_dir))
     list_dirs.remove(".curr_creds")
     for i in list_dirs:
         if i == curr_item:

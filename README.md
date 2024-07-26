@@ -79,6 +79,11 @@ Once awsx-cli is installed, you can start using it to manage your AWS credential
     ❯ awsx -a aws04
     Stored 'aws04' credentials succesfully
     ```
+    or with the MFA ARN: 
+    ```zsh
+    ❯ awsx -a aws04 -m arn:aws:iam::123456789012:mfa/some-mfa-device
+    Stored 'aws04' credentials succesfully
+    ```
 
 * To both switch to a different set of credentials and update the MFA session:
 
@@ -109,25 +114,25 @@ Once awsx-cli is installed, you can start using it to manage your AWS credential
 
      ```zsh
     ❯ awsx --help
-    usage: awsx [-h] [-a ADD] [-r REMOVE] [-l] [-p ADD_PROMPT] [-mfa UPDATE_MFA]
-                [change]
+    usage: awsx [-h] [-a ADD] [-r REMOVE] [-l] [-p ADD_PROMPT] [-mfa UPDATE_MFA] [-c ROTATE_CREDENTIAL] [-m MFA_ARN] [change]
 
     positional arguments:
-    change                Example: awsx foo , awsx bar
+      change                Example: awsx foo , awsx bar
 
     optional arguments:
-    -h, --help            show this help message and exit
-    -a ADD, --add ADD     add your credentials to awsx
-    -r REMOVE, --remove REMOVE
+      -h, --help            show this help message and exit
+      -a ADD, --add ADD     add your credentials to awsx
+      -r REMOVE, --remove REMOVE
                             remove your credentials from awsx
-    -l, --list            list your credentials from awsx
-    -p ADD_PROMPT, --add-prompt ADD_PROMPT
+      -l, --list            list your credentials from awsx
+      -p ADD_PROMPT, --add-prompt ADD_PROMPT
                             you can create creds from prompt
-    -mfa UPDATE_MFA, --update-mfa UPDATE_MFA
+      -mfa UPDATE_MFA, --update-mfa UPDATE_MFA
                             update your mfa session
-    -c ROTATE_CREDENTIAL, --rotate-credential ROTATE_CREDENTIAL
-                          rotate your credentials (create new and remove previous) Example: awsx -c foo -mfa 123456
-
+      -c ROTATE_CREDENTIAL, --rotate-credential ROTATE_CREDENTIAL
+                            rotate your credentials (create new and remove previous) Example: awsx -c foo -mfa 123456
+      -m MFA_ARN, --mfa-arn MFA_ARN
+                            add your MFA ARN along with the credentials to awsx
     ```
 
 

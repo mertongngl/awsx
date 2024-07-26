@@ -113,7 +113,7 @@ def remove_selected_item(selected_creds):
         return "Cannot remove '{}' credentials".format(selected_creds)
     return "Removed '{}' credentials successfully".format(selected_creds)
 
-def store_item(creds_name):
+def store_item(creds_name, mfa_arn=None):
     stderr_1 = os.system(
         "mkdir -p {}/{}/".format(
             base_dir,
@@ -129,7 +129,10 @@ def store_item(creds_name):
         )
     if(stderr_1 != 0 or stderr_2 !=0):
         return "Cannot store '{}' credentials".format(creds_name)
-    return "Stored '{}' credentials succesfully".format(creds_name)
+    if mfa_arn:
+        with open("{}/{}/.mfa_arn".format(base_dir, creds_name), 'w') as mfa_file:
+            mfa_file.write(mfa_arn)
+    return "Stored '{}' credentials successfully".format(creds_name)
 
 def prompt_store_item(creds_name):
     stderr_1 = 0
@@ -167,7 +170,7 @@ def prompt_store_item(creds_name):
 
         if(stderr_1 != 0):
             return "Cannot store '{}' credentials".format(creds_name)
-        return "Stored '{}' credentials succesfully".format(creds_name)
+        return "Stored '{}' credentials successfully".format(creds_name)
     return "Cannot get values from prompt"
 
 def update_mfa(mfa_code):
@@ -285,6 +288,12 @@ def get_args():
         required = False,
         help = "rotate your credentials (create new and remove previous) Example: awsx -c foo -mfa 123456"
     )
+    parser.add_argument(
+        "-m",
+        "--mfa-arn",
+        required=False,
+        help="add your MFA ARN along with the credentials to awsx"
+    )
     return parser.parse_args()
 
 def parse_options(arguments):
@@ -293,7 +302,7 @@ def parse_options(arguments):
     elif(arguments.remove):
         return remove_selected_item(arguments.remove)
     elif(arguments.add):
-        return store_item(arguments.add)
+        return store_item(arguments.add, arguments.mfa_arn)
     elif(arguments.add_prompt):
         return prompt_store_item(arguments.add_prompt)
     elif(arguments.change):
